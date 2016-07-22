@@ -21,8 +21,8 @@ function zipcodeToBarcode(zipcode) {
 function validateZipcode(zipcode) {
 
   return /^\d{5}$/.test(zipcode)
-      || /^\d{9}&/.test(zipcode)
-      || /^\d{5}-\d{4}&/.test(zipcode);
+      || /^\d{9}$/.test(zipcode)
+      || /^\d{5}-\d{4}/.test(zipcode);
 }
 
 function formatZipcode(zipcode) {
