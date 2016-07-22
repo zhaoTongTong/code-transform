@@ -1,33 +1,54 @@
 'use strict'
 
-function checkInput(inputZipcode) {
-  const length = [5, 9, 10];
-  const correctLengthCode = length.find(element => element === inputZipcode.length);
-  const verifiedCodes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-'];
+const table = [
+  '||:::', ':::||', '::|:|', '::||:', ':|::|',
+  ':|:|:', ':||::', '|:::|', '|::|:', '|:|::'
+];
 
-  const charsVerifed = !inputZipcode
-      .split('')
-      .some(code => verifiedCodes.every(verifiedCode => verifiedCode !== code));
+function zipcodeToBarcode(zipcode) {
+  if (!validateZipcode(zipcode)) {
+    return {success: false, error: 'invalid_zipcode'};
+  }
+  const zipcodeWithoutDash = formatZipcode(zipcode);
+  const zipcodeDigitArray = toDigitArray(zipcodeWithoutDash);
+  const checkDigit = calculateCheckDigit(zipcodeDigitArray);
+  const barcode = toBarcode(zipcodeDigitArray.concat(checkDigit));
+  const value = formatBarcode(barcode);
 
-  return correctLengthCode && charsVerifed;
-
+  return {success: true, value};
 }
 
-function calculateCheckDigit(zipcode) {
+function validateZipcode(zipcode) {
 
-  const checkDigit = (10 - zipcode.reduce((pre, cur) => pre + cur) % 10)%10;
-
-  zipcode.push(checkDigit);
-  return zipcode;
+  return /^\d{5}$/.test(zipcode)
+      || /^\d{9}&/.test(zipcode)
+      || /^\d{5}-\d{4}&/.test(zipcode);
 }
 
-function buildBarcode(codes, transformStandard) {
+function formatZipcode(zipcode) {
+  return zipcode.replace('-', '');
+}
 
-  return `|${codes.map(code => transformStandard[code]).join('')}|`;
+function toDigitArray(zipcodeWithoutDash) {
+
+  return zipcodeWithoutDash.split('').map(c=> parseInt(c));
+}
+
+function calculateCheckDigit(digitArray) {
+  return (10 - digitArray.reduce((a, b) => a + b) % 10) % 10;
+}
+
+function toBarcode(zipcodeArray) {
+
+  return zipcodeArray
+      .map(zipcode => table[zipcode])
+      .join('');
+}
+
+function formatBarcode(barcode) {
+  return `|${barcode}|`;
 }
 
 module.exports = {
-  checkInput: checkInput,
-  calculateCheckDigit: calculateCheckDigit,
-  buildBarcode: buildBarcode
+  zipcodeToBarcode: zipcodeToBarcode
 }
