@@ -1,48 +1,28 @@
 'use strict'
-const main = require('../main/main');
+const postnet = require('../main/main');
 
-describe('main', () => {
-  it('checked correct format', () => {
+describe('postnet', () => {
+  describe('main', () => {
 
-    const inputZipcode = '12345-1234';
-    const actualZipcode = main.checkInput(inputZipcode);
-    expect(actualZipcode).toEqual(true);
+    it('should translate zipcode to barcode', () => {
+      [
+        {
+          zipcode: '12345',
+          barcode: '|:::||::|:|::||::|::|:|:|::|:|:|'
+        }
+      ].forEach(example => {
+        const result = postnet.zipcodeToBarcode(example.zipcode);
+        expect(result.success).toBeTruthy();
+        expect(result.value).toEqual(example.barcode);
+      });
+    });
+
+    // it('zipcode is invalid', () => {
+    //   ['123456', 'av13'].forEach(example => {
+    //     const result = postnet.zipcodeToBarcode(example);
+    //     expect(result.success).toBeFalsy();
+    //     expect(result.error).toEqual('invalid_zipcode');
+    //   });
+    // });
   });
-
-  it('checked wrong format', () => {
-    const inputZipcode = 'a1234';
-    const actualZipcode = main.checkInput(inputZipcode);
-
-    expect(actualZipcode).toEqual(false);
-  });
-
-  it('calculateCheckDigit', () => {
-    const zipcode = [1,2,3,4,5];
-    const expectCode = [1,2,3,4,5,5];
-    const actualCode = main.calculateCheckDigit(zipcode);
-    expect(actualCode).toEqual(expectCode);
-  });
-  
-  it('buildBarcode', () => {
-
-    const code = [1, 2, 3, 4, 5, 5];
-    const transformStandard =
-         ['||:::',
-          ':::||',
-          '::|:|',
-          '::||:',
-          ':|::|',
-          ':|:|:',
-          ':||::',
-          '|:::|',
-          '|::|:',
-          '|:|::]'
-         ];
-
-    const actualBarcode = main.buildBarcode(code, transformStandard);
-    const expectBarcode = '|:::||::|:|::||::|::|:|:|::|:|:|';
-    expect(actualBarcode).toEqual(expectBarcode);
-
-  });
-
 });
